@@ -39,6 +39,23 @@ export class AuthService {
         }
     }
 
+    async refreshAccessToken(refreshData: any, refreshToken: string) {
+        const payload = {
+            sub: refreshData.userId,
+            email: refreshData.email
+        }
+
+        return {
+            tokens: {
+                access: await this.jwtService.signAsync(payload, {
+                    secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
+                    expiresIn: '1h'
+                }),
+                refresh: refreshToken
+            }
+        }
+    }
+
     async login(loginDto: LoginDto): Promise<TokenInterface> {
         try {
             // Retrieve user
@@ -56,9 +73,8 @@ export class AuthService {
         }
     }
 
-    async refreshToken() {
-        // Implement refresh token logic
-
+    async refreshToken(payload: any, refreshTokenValue: string) {
+        return await this.refreshAccessToken(payload, refreshTokenValue)
     }
 
 }
