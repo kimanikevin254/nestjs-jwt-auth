@@ -10,14 +10,17 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
   providers: [AuthService, UserService, PrismaService],
   controllers: [AuthController],
   imports: [
-    JwtModule.registerAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
-        global: true,
-        secret: configService.get<string>('JWT_SECRET'),
-        signOptions: { expiresIn: '1d' }
-      })
+    // JwtModule.registerAsync({
+    //   imports: [ConfigModule],
+    //   inject: [ConfigService],
+    //   useFactory: async (configService: ConfigService) => ({
+    //     global: true,
+    //     secret: configService.get<string>('JWT_ACCESS_SECRET'),
+    //     signOptions: { expiresIn: '1d' }
+    //   })
+    // })
+    JwtModule.register({
+      global: true
     })
   ]
 })

@@ -3,6 +3,6 @@ export interface AccessTokenInterface {
   }
   
   export interface TokenInterface {
-    token: AccessTokenInterface;
+    tokens: AccessTokenInterface;
   }
   
