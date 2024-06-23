@@ -15,7 +15,7 @@ export class UserService {
         }
     }
 
-    async createUser(userDto: UserDto): Promise<UserDto>{
+    async create(userDto: UserDto): Promise<UserDto>{
         try {
             const hashedPassword = await this.hashPassword(userDto.password)
 
@@ -33,5 +33,15 @@ export class UserService {
                 throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR)
             }
         }
+    }
+
+    async findOneByEmail(email: string): Promise<UserDto> {
+        const userExists = await this.prisma.user.findUnique({
+            where: { email }
+        })
+
+        if(!userExists) throw new HttpException('Incorrect credentials', HttpStatus.UNAUTHORIZED)
+        
+        return userExists
     }
 }
