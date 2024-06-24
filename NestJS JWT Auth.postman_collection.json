@@ -1,0 +1,172 @@
+{
+	"info": {
+		"_postman_id": "38ac587b-10d4-4ae0-924c-0945d3253353",
+		"name": "NestJS JWT Auth",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "34662204"
+	},
+	"item": [
+		{
+			"name": "Register",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Jane Doe\",\n    \"email\": \"jane2@email.com\",\n    \"password\": \"12345678\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BASE_URI}}/auth/register/",
+					"host": [
+						"{{BASE_URI}}"
+					],
+					"path": [
+						"auth",
+						"register",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "",
+						"value": "",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"jane@email.com\",\n    \"password\": \"12345678\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BASE_URI}}/auth/login/",
+					"host": [
+						"{{BASE_URI}}"
+					],
+					"path": [
+						"auth",
+						"login",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Profile",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImphbmVAZW1haWwuY29tIiwiaWF0IjoxNzE5MTYxODc5LCJleHAiOjE3MTkxNjU0Nzl9.ePcGJMicajqJkyrisghXcSzKIhDE6TAd_x39ZGAYkhY",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{BASE_URI}}/user/",
+					"host": [
+						"{{BASE_URI}}"
+					],
+					"path": [
+						"user",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Refresh Token",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4YjhkNjU1Zi03NDNlLTQ5YjctOWZiYS1kZTBlNzVhYmZmMzciLCJlbWFpbCI6ImphbmVAZW1haWwuY29tIiwiaWF0IjoxNzE5MTQ5ODk0LCJleHAiOjE3MTkyMzYyOTR9.5Sen3KUacGfCtPQZER07nghbL67hVJ_8cu1wjXZe27g",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "refresh",
+						"value": "Refresh eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4YjhkNjU1Zi03NDNlLTQ5YjctOWZiYS1kZTBlNzVhYmZmMzciLCJlbWFpbCI6ImphbmVAZW1haWwuY29tIiwiaWF0IjoxNzE5MTYxMDAxLCJleHAiOjE3MTk3NjU4MDF9.mLwjATNckb1fWCdNoq4Dy15nSYt0Y_QaqPgq6iBmcOc",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{BASE_URI}}/auth/token/refresh/",
+					"host": [
+						"{{BASE_URI}}"
+					],
+					"path": [
+						"auth",
+						"token",
+						"refresh",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Logout",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4YjhkNjU1Zi03NDNlLTQ5YjctOWZiYS1kZTBlNzVhYmZmMzciLCJlbWFpbCI6ImphbmVAZW1haWwuY29tIiwiaWF0IjoxNzE5MjA4OTYxLCJleHAiOjE3MTkyMTI1NjF9.1G05MxzPgPX9JF1aLfavwpGnDPM-0MgnMyzkCbElSOI",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "refresh",
+						"value": "Refresh eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4YjhkNjU1Zi03NDNlLTQ5YjctOWZiYS1kZTBlNzVhYmZmMzciLCJlbWFpbCI6ImphbmVAZW1haWwuY29tIiwiaWF0IjoxNzE5MjA4OTYxLCJleHAiOjE3MTk4MTM3NjF9.44GX7otSuYXRcKLzGHtzJZ87PnyM3LarzOBdra8UKt4",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{BASE_URI}}/auth/logout/",
+					"host": [
+						"{{BASE_URI}}"
+					],
+					"path": [
+						"auth",
+						"logout",
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
