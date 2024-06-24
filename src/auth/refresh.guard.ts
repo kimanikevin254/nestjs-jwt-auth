@@ -2,10 +2,15 @@ import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { Request } from "express";
+import { PrismaService } from "src/prisma.service";
 
 @Injectable()
 export class RefreshGuard implements CanActivate {
-    constructor (private jwtService: JwtService, private configService: ConfigService){}
+    constructor (
+        private jwtService: JwtService, 
+        private configService: ConfigService,
+        private prismaService: PrismaService
+    ){}
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
@@ -14,12 +19,21 @@ export class RefreshGuard implements CanActivate {
         if(!refreshToken) { throw new UnauthorizedException() }
 
         try {
+            // Check if refresh token is valid
+            // Expired tokens are in the DB will not pass this stage
             await this.jwtService.verifyAsync(
                 refreshToken, 
                 {
                     secret: this.configService.get<string>('JWT_REFRESH_SECRET')
                 }
             )
+
+            // Check if refresh token exists in DB
+            const refreshTokenExists = await this.prismaService.refreshToken.findFirst({
+                where: { refreshToken: refreshToken }
+            })
+
+            if(!refreshTokenExists) { throw new UnauthorizedException() }
 
             request['refreshToken'] = refreshToken
         } catch (error) {

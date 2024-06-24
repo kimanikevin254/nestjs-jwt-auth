@@ -6,6 +6,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { TokenInterface } from './interfaces/tokens.interface';
 import { ConfigService } from '@nestjs/config';
+import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
 export class AuthService {
@@ -13,7 +14,8 @@ export class AuthService {
         @Inject(forwardRef(() => UserService))
         private userService: UserService,
         private jwtService: JwtService,
-        private configService: ConfigService
+        private configService: ConfigService,
+        private prismaService: PrismaService
     ) {}
 
     async comparePassword(providedPassword: string, userPassword: string) {
@@ -21,22 +23,38 @@ export class AuthService {
     }
 
     async generateJWT(userData: UserDto){
-        const payload = {
-            sub: userData.userId,
-            email: userData.email
-        }
-
-        return {
-            tokens: {
-                access: await this.jwtService.signAsync(payload, {
+        try {
+            const payload = {
+                sub: userData.userId,
+                email: userData.email
+            }
+    
+            const accessToken = await this.jwtService.signAsync(payload, {
                     secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
                     expiresIn: '1h'
-                }),
-                refresh: await this.jwtService.signAsync(payload, {
+                })
+    
+            const refreshToken = await this.jwtService.signAsync(payload, {
                     secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
                     expiresIn: '7d'
                 })
+    
+            // Save refresh token to DB
+            await this.prismaService.refreshToken.create({
+                data: { 
+                    userId: userData.userId,
+                    refreshToken: refreshToken
+                }
+            })
+    
+            return {
+                tokens: {
+                    access: accessToken,
+                    refresh: refreshToken
+                }
             }
+        } catch (error) {
+            throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR)   
         }
     }
 
