@@ -95,4 +95,15 @@ export class AuthService {
     async refreshToken(payload: any, refreshTokenValue: string) {
         return await this.refreshAccessToken(payload, refreshTokenValue)
     }
+
+    async logout(refreshToken: string) {
+        try {          
+            return await this.prismaService.refreshToken.update({
+                where: { refreshToken: refreshToken },
+                data: { isValid: false }
+            })
+        } catch (error) {
+            throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR)  
+        }
+    }
 }

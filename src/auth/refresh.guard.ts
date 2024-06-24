@@ -20,7 +20,7 @@ export class RefreshGuard implements CanActivate {
 
         try {
             // Check if refresh token is valid
-            // Expired tokens are in the DB will not pass this stage
+            // Expired tokens are in the DB(even if they have isValid set to true) will not pass this stage
             await this.jwtService.verifyAsync(
                 refreshToken, 
                 {
@@ -29,8 +29,8 @@ export class RefreshGuard implements CanActivate {
             )
 
             // Check if refresh token exists in DB
-            const refreshTokenExists = await this.prismaService.refreshToken.findFirst({
-                where: { refreshToken: refreshToken }
+            const refreshTokenExists = await this.prismaService.refreshToken.findUnique({
+                where: { refreshToken: refreshToken, isValid: true }
             })
 
             if(!refreshTokenExists) { throw new UnauthorizedException() }

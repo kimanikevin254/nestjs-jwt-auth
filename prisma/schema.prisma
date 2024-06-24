@@ -27,7 +27,8 @@ model RefreshToken {
   tokenId      String   @id @unique @default(uuid())
   user         User     @relation(fields: [userId], references: [userId])
   userId       String
-  refreshToken String
+  refreshToken String   @unique()
+  isValid      Boolean  @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }

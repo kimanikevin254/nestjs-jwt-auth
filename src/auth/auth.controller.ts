@@ -15,17 +15,23 @@ export class AuthController {
 
     @Post('register')
     async register(@Body() userDto: UserDto): Promise<UserDto> {
-        return this.userService.create(userDto)
+        return await this.userService.create(userDto)
     }
 
     @Post('login')
     async login(@Body() loginDto: LoginDto): Promise<any> {
-        return this.authService.login(loginDto)
+        return await this.authService.login(loginDto)
     }
 
     @UseGuards(AuthGuard, RefreshGuard)
     @Get('token/refresh')
     async refresh(@Req() req){
-        return this.authService.refreshToken(req.user, req.refreshToken)
+        return await this.authService.refreshToken(req.user, req.refreshToken)
+    }
+
+    @Get('logout')
+    @UseGuards(AuthGuard, RefreshGuard)
+    async logout(@Req() req){
+        return await this.authService.logout(req.rereshToken)
     }
 }
