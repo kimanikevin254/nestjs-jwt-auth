@@ -1,11 +1,16 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { forwardRef, HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { UserDto } from './dto/user.dto';
 import * as bcrypt from 'bcrypt';
+import { AuthService } from 'src/auth/auth.service';
 
 @Injectable()
 export class UserService {
-    constructor(private prisma: PrismaService){}
+    constructor(
+        private prisma: PrismaService,
+        @Inject(forwardRef(() => AuthService))
+        private authService: AuthService
+    ){}
 
     async hashPassword(password: string): Promise<string> {
         try {
@@ -25,7 +30,16 @@ export class UserService {
 
             const { password, ...rest } = newUser
 
-            return rest
+            // Attach tokens to allow user to log in immediately after registration
+            const tokens = await this.authService.generateJWT(newUser)
+
+            const returnData = {
+                ...rest,
+                ...tokens
+            }
+
+
+            return returnData
         } catch (error) {
             if(error?.message?.includes('Unique constraint failed on the fields: (`email`)')){
                 throw new HttpException('This email address is already registered', HttpStatus.FORBIDDEN)

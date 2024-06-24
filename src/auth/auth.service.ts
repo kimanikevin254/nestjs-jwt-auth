@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { forwardRef, HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
 import { UserDto } from 'src/user/dto/user.dto';
 import { UserService } from 'src/user/user.service';
@@ -10,6 +10,7 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class AuthService {
     constructor(
+        @Inject(forwardRef(() => UserService))
         private userService: UserService,
         private jwtService: JwtService,
         private configService: ConfigService
@@ -76,5 +77,4 @@ export class AuthService {
     async refreshToken(payload: any, refreshTokenValue: string) {
         return await this.refreshAccessToken(payload, refreshTokenValue)
     }
-
 }

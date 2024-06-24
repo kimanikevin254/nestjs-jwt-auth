@@ -22,6 +22,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     JwtModule.register({
       global: true
     })
-  ]
+  ],
+  exports: []
 })
 export class AuthModule {}
