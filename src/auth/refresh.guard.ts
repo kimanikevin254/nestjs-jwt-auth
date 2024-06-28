@@ -35,7 +35,7 @@ export class RefreshGuard implements CanActivate {
 
             if(!refreshTokenExists) { throw new UnauthorizedException() }
 
-            request['refreshToken'] = refreshToken
+            request['refreshToken'] = refreshTokenExists.refreshToken
         } catch (error) {
             throw new UnauthorizedException()
         }

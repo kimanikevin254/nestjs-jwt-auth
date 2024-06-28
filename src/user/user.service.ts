@@ -1,8 +1,9 @@
 import { forwardRef, HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
-import { UserDto } from './dto/user.dto';
 import * as bcrypt from 'bcrypt';
 import { AuthService } from 'src/auth/auth.service';
+import { Prisma, User } from '@prisma/client';
+import { CreateUserDto } from 'src/auth/dto/create-user.dto';
 
 @Injectable()
 export class UserService {
@@ -16,30 +17,30 @@ export class UserService {
         try {
             return await bcrypt.hash(password, 12)
         } catch (error) {
-            console.log('ERROR', error);
+            throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
 
-    async create(userDto: UserDto): Promise<UserDto>{
+    async create(createUserDto: CreateUserDto): Promise<User>{
         try {
-            const hashedPassword = await this.hashPassword(userDto.password)
+            const hashedPassword = await this.hashPassword(createUserDto.password)
 
-            const newUser = await this.prisma.user.create({
-                data: { ...userDto, password: hashedPassword }
+            return await this.prisma.user.create({
+                data: { ...createUserDto, password: hashedPassword }
             })
 
-            const { password, ...rest } = newUser
+            // const { password, ...rest } = newUser
 
-            // Attach tokens to allow user to log in immediately after registration
-            const tokens = await this.authService.generateJWT(newUser)
+            // // Attach tokens to allow user to log in immediately after registration
+            // const tokens = await this.authService.generateJWT(newUser)
 
-            const returnData = {
-                ...rest,
-                ...tokens
-            }
+            // const returnData = {
+            //     ...rest,
+            //     ...tokens
+            // }
 
 
-            return returnData
+            // return returnData
         } catch (error) {
             if(error?.message?.includes('Unique constraint failed on the fields: (`email`)')){
                 throw new HttpException('This email address is already registered', HttpStatus.FORBIDDEN)
@@ -49,7 +50,7 @@ export class UserService {
         }
     }
 
-    async findOneByEmail(email: string): Promise<UserDto> {
+    async findOneByEmail(email: string): Promise<User> {
         const userExists = await this.prisma.user.findUnique({
             where: { email }
         })

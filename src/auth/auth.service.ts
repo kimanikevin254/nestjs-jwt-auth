@@ -1,12 +1,12 @@
 import { forwardRef, HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
-import { UserDto } from 'src/user/dto/user.dto';
 import { UserService } from 'src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { TokenInterface } from './interfaces/tokens.interface';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from 'src/prisma.service';
+import { User } from 'prisma/prisma-client'
 
 @Injectable()
 export class AuthService {
@@ -18,11 +18,11 @@ export class AuthService {
         private prismaService: PrismaService
     ) {}
 
-    async comparePassword(providedPassword: string, userPassword: string) {
+    async comparePassword(providedPassword: string, userPassword: string): Promise<boolean> {
         return await bcrypt.compare(providedPassword, userPassword)
     }
 
-    async generateJWT(userData: UserDto){
+    async generateJWT(userData: User): Promise<TokenInterface>{
         try {
             const payload = {
                 sub: userData.userId,
@@ -48,30 +48,26 @@ export class AuthService {
             })
     
             return {
-                tokens: {
-                    access: accessToken,
-                    refresh: refreshToken
-                }
+                access: accessToken,
+                refresh: refreshToken
             }
         } catch (error) {
             throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR)   
         }
     }
 
-    async refreshAccessToken(refreshData: any, refreshToken: string) {
+    async refreshAccessToken(refreshData: any, refreshToken: string): Promise<TokenInterface> {
         const payload = {
             sub: refreshData.userId,
             email: refreshData.email
         }
 
         return {
-            tokens: {
-                access: await this.jwtService.signAsync(payload, {
-                    secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
-                    expiresIn: '1h'
-                }),
-                refresh: refreshToken
-            }
+            access: await this.jwtService.signAsync(payload, {
+                secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
+                expiresIn: '1h'
+            }),
+            refresh: refreshToken
         }
     }
 
@@ -98,10 +94,12 @@ export class AuthService {
 
     async logout(refreshToken: string) {
         try {          
-            return await this.prismaService.refreshToken.update({
+            await this.prismaService.refreshToken.update({
                 where: { refreshToken: refreshToken },
                 data: { isValid: false }
             })
+
+            return
         } catch (error) {
             throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR)  
         }
